@@ -53,8 +53,16 @@ public class EventFN : MonoBehaviour
                     toClose.transform.Rotate(Vector3.up,180);
                 }
                 break;
+
             case "Rotar":
                 instance.StartCoroutine(c_rotatorObj(2));
+                break;
+
+            case "AutoMove":
+                    if (!move){
+                        move = true;
+                        instance.StartCoroutine(c_moveAuto(_data));
+                    }
                 break;
 
             default:
@@ -109,6 +117,31 @@ public class EventFN : MonoBehaviour
         }
 
         objTmp.transform.position = toUse;
+        yield return new WaitForSeconds(0.5f);
+        move = false;
+    }
+
+    static IEnumerator c_moveAuto(string[] _names)
+    {
+        float elapsedTime;
+        float waitTime = 50.0f;
+
+        for (int i = 0; i < _names.Length; i++)
+        {
+            elapsedTime = 0.0f;
+            GameObject obj = GameObject.Find("Pivote");
+            Transform toMove = GameObject.Find(_names[i]).gameObject.transform;
+            Vector3 toUse = new Vector3(toMove.position.x, 1, toMove.position.z);
+
+            while (elapsedTime < waitTime)
+            {
+                obj.transform.position = Vector3.Lerp(obj.transform.position, toUse, (elapsedTime / waitTime));
+                elapsedTime += Time.deltaTime;
+                if (Vector3.Distance(obj.transform.position, toUse) <= 0.1f)
+                    break;
+                yield return null;
+            }
+        }
         yield return new WaitForSeconds(0.5f);
         move = false;
     }
